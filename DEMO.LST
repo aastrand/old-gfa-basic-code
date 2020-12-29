@@ -1,0 +1,18 @@
+a$=SPACE$(32128)
+BLOAD "a:\side2\ntrdemo\ntr.PI1",VARPTR(a$)
+BMOVE VARPTR(a$),XBIOS(2)-34,32128
+VOID XBIOS(6,L:XBIOS(2)-32)
+OPEN "I",#1,"a:\side2\ntrdemo\ntr_spl1.ste"
+l=LOF(#1)
+CLOSE
+BLOAD "a:\side2\ntrdemo\ntr_spl1.ste",VARPTR(a)
+DMASOUND V:a,V:a+l,0
+b$="                   HEJSAN HOPPSAN! I'm back! Detta program „r gjort i GFA BASIC!!!!!!!                   "
+length=LEN(b$)
+DO
+  FOR x%=1 TO length
+    TEXT 0,199,MID$(b$,x%,40)
+  NEXT x%
+  EXIT IF INKEY$<>""
+LOOP
+DMACONTROL 0

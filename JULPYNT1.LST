@@ -1,0 +1,356 @@
+text$="[$0000 "
+z%=0
+DIM e$(4095)
+a$="   NU ŽR DEN ŽNTLIGEN KLAR!!! DENNA FANTASTISKA SKYLT SKULLE EGENTLIGEN VARIT EN DEL AV VRT JULPYNT, MEN BŽTTRE SENT ŽN ALDRIG!    VI SOM KONSTRUERAT OCH BYGGT DENNA HETER PŽR LARSSON OCH MATHIAS KRISTIANSSON OCH VI GR SKLART I SKOLANS BŽSTA "
+a$=a$+"KLASS... T3A T3A T3A T3A T3A T3A   "
+a$=a$+"ETT STORT TACK TILL ™VRIGA KLASSEN, ALLAN CROMNOW OCH ER SOM LŽSER DENNA TEXT. UTAN DEN HJŽLP OCH DET MORALISKA ST™D VI HAR FTT HADE DETTA PROJEKT INTE KUNNAT GENOMF™RAS.     ANNONSPLATS UTHYRES!!!      KONTAKTA OSS F™R INFO    "
+a$=a$+"SOM ALLA KANSKE VET, BLEV VR KLASS SKOLANS ROLIGASTE KLASS. ŽNNU ETT TECKEN P ATT T3A ŽR BŽST. MISSA INTE VRT FRAMTRŽDANDE P AVSLUTNINGEN!! VI HOPPAS ATT KOMMANDE GENERATIONER AV TEKNISTER HLLER VRT RYKTE VID LIV.    "
+a$=a$+"NI HAR VŽL INTE GL™MT BORT VILKA VI ŽR!  T3A! JUST DET T3A T3A T3A T3A T3A    VI MSTE TYVŽRR BRYTA NU MEN VI ŽR STRAX TILLBAKA! HEJD FRN T3A!!!!!!!!!"
+FOR x%=1 TO LEN(a$)
+  b$=MID$(a$,x%,1)
+  IF b$=" "
+    space
+  ENDIF
+  IF b$="A"
+    a
+  ENDIF
+  IF b$="B"
+    b
+  ENDIF
+  IF b$="C"
+    c
+  ENDIF
+  IF b$="D"
+    d1
+  ENDIF
+  IF b$="E"
+    e1
+  ENDIF
+  IF b$="F"
+    f
+  ENDIF
+  IF b$="G"
+    g
+  ENDIF
+  IF b$="H"
+    h1
+  ENDIF
+  IF b$="I"
+    i
+  ENDIF
+  IF b$="J"
+    j
+  ENDIF
+  IF b$="K"
+    k
+  ENDIF
+  IF b$="L"
+    l1
+  ENDIF
+  IF b$="M"
+    m
+  ENDIF
+  IF b$="N"
+    n
+  ENDIF
+  IF b$="O"
+    o
+  ENDIF
+  IF b$="P"
+    p1
+  ENDIF
+  IF b$="Q"
+    q1
+  ENDIF
+  IF b$="R"
+    r1
+  ENDIF
+  IF b$="S"
+    s
+  ENDIF
+  IF b$="T"
+    t
+  ENDIF
+  IF b$="U"
+    u
+  ENDIF
+  IF b$="V"
+    v1
+  ENDIF
+  IF b$="W"
+    w
+  ENDIF
+  IF b$="X"
+    x
+  ENDIF
+  IF b$="Y"
+    y
+  ENDIF
+  IF b$="Z"
+    z
+  ENDIF
+  IF b$=""
+    aa
+  ENDIF
+  IF b$="Ž"
+    ae
+  ENDIF
+  IF b$="™"
+    oe
+  ENDIF
+  IF b$=","
+    komma
+  ENDIF
+  IF b$="."
+    punkt
+  ENDIF
+  IF b$="!"
+    ut
+  ENDIF
+  e$(z%)="00"
+  z%=z%+1
+NEXT x%
+FOR c=0 TO z%
+  text$=text$+MID$(e$(c),d,2)+" "
+NEXT c
+text$=text$+"]"
+OPEN "o",#1,"TEXT.TXT"
+PRINT #1,a$
+CLOSE #1
+OPEN "o",#1,"eprom.txt"
+PRINT #1,text$
+CLOSE #1
+> PROCEDURE space
+  e$(z%)="00"
+  e$(z%+1)="00"
+  z%=z%+2
+RETURN
+> PROCEDURE a
+  e$(z%)="1E"
+  e$(z%+1)="05"
+  e$(z%+2)="05"
+  e$(z%+3)="1E"
+  z%=z%+4
+RETURN
+> PROCEDURE b
+  e$(z%)="1F"
+  e$(z%+1)="15"
+  e$(z%+2)="15"
+  e$(z%+3)="0F"
+  z%=z%+4
+RETURN
+> PROCEDURE c
+  e$(z%)="0E"
+  e$(z%+1)="11"
+  e$(z%+2)="11"
+  e$(z%+3)="11"
+  z%=z%+4
+RETURN
+> PROCEDURE d1
+  e$(z%)="1F"
+  e$(z%+1)="11"
+  e$(z%+2)="11"
+  e$(z%+3)="0E"
+  z%=z%+4
+RETURN
+> PROCEDURE e1
+  e$(z%)="1F"
+  e$(z%+1)="15"
+  e$(z%+2)="15"
+  e$(z%+3)="11"
+  z%=z%+4
+RETURN
+> PROCEDURE f
+  e$(z%)="1F"
+  e$(z%+1)="05"
+  e$(z%+2)="05"
+  e$(z%+3)="01"
+  z%=z%+4
+RETURN
+> PROCEDURE g
+  e$(z%)="0E"
+  e$(z%+1)="11"
+  e$(z%+2)="15"
+  e$(z%+3)="0C"
+  z%=z%+4
+RETURN
+> PROCEDURE h1
+  e$(z%)="1F"
+  e$(z%+1)="04"
+  e$(z%+2)="04"
+  e$(z%+3)="1F"
+  z%=z%+4
+RETURN
+> PROCEDURE i
+  e$(z%)="11"
+  e$(z%+1)="1F"
+  e$(z%+2)="11"
+  z%=z%+3
+RETURN
+> PROCEDURE j
+  e$(z%)="08"
+  e$(z%+1)="10"
+  e$(z%+2)="10"
+  e$(z%+3)="0F"
+  z%=z%+4
+RETURN
+> PROCEDURE k
+  e$(z%)="1F"
+  e$(z%+1)="04"
+  e$(z%+2)="0A"
+  e$(z%+3)="11"
+  z%=z%+4
+RETURN
+> PROCEDURE l1
+  e$(z%)="1F"
+  e$(z%+1)="10"
+  e$(z%+2)="10"
+  e$(z%+3)="10"
+  z%=z%+4
+RETURN
+> PROCEDURE m
+  e$(z%)="1F"
+  e$(z%+1)="02"
+  e$(z%+2)="04"
+  e$(z%+3)="02"
+  e$(z%+4)="1F"
+  z%=z%+5
+RETURN
+> PROCEDURE n
+  e$(z%)="1F"
+  e$(z%+1)="02"
+  e$(z%+2)="04"
+  e$(z%+3)="08"
+  e$(z%+4)="1F"
+  z%=z%+5
+RETURN
+> PROCEDURE o
+  e$(z%)="0E"
+  e$(z%+1)="11"
+  e$(z%+2)="11"
+  e$(z%+3)="0E"
+  z%=z%+4
+RETURN
+> PROCEDURE p1
+  e$(z%)="1F"
+  e$(z%+1)="05"
+  e$(z%+2)="05"
+  e$(z%+3)="02"
+  z%=z%+4
+RETURN
+> PROCEDURE q1
+  e$(z%)="0E"
+  e$(z%+1)="11"
+  e$(z%+2)="19"
+  e$(z%+3)="1E"
+  z%=z%+4
+RETURN
+> PROCEDURE r1
+  e$(z%)="1F"
+  e$(z%+1)="05"
+  e$(z%+2)="0D"
+  e$(z%+3)="12"
+  z%=z%+4
+RETURN
+> PROCEDURE s
+  e$(z%)="12"
+  e$(z%+1)="15"
+  e$(z%+2)="15"
+  e$(z%+3)="09"
+  z%=z%+4
+RETURN
+> PROCEDURE t
+  e$(z%)="01"
+  e$(z%+1)="01"
+  e$(z%+2)="1F"
+  e$(z%+3)="01"
+  e$(z%+4)="01"
+  z%=z%+5
+RETURN
+> PROCEDURE u
+  e$(z%)="0F"
+  e$(z%+1)="10"
+  e$(z%+2)="10"
+  e$(z%+3)="0F"
+  z%=z%+4
+RETURN
+> PROCEDURE v1
+  e$(z%)="03"
+  e$(z%+1)="0C"
+  e$(z%+2)="10"
+  e$(z%+3)="0C"
+  e$(z%+4)="03"
+  z%=z%+5
+RETURN
+> PROCEDURE w
+  e$(z%)="1F"
+  e$(z%+1)="08"
+  e$(z%+2)="04"
+  e$(z%+3)="08"
+  e$(z%+4)="1F"
+  z%=z%+5
+RETURN
+> PROCEDURE x
+  e$(z%)="1B"
+  e$(z%+1)="04"
+  e$(z%+2)="04"
+  e$(z%+3)="1B"
+  z%=z%+4
+RETURN
+> PROCEDURE y
+  e$(z%)="03"
+  e$(z%+1)="04"
+  e$(z%+2)="18"
+  e$(z%+3)="04"
+  e$(z%+4)="03"
+  z%=z%+5
+RETURN
+> PROCEDURE z
+  e$(z%)="19"
+  e$(z%+1)="15"
+  e$(z%+2)="13"
+  e$(z%+3)="11"
+  z%=z%+4
+RETURN
+> PROCEDURE aa
+  e$(z%)="1C"
+  e$(z%+1)="0B"
+  e$(z%+2)="0B"
+  e$(z%+3)="1C"
+  z%=z%+4
+RETURN
+> PROCEDURE ae
+  e$(z%)="1D"
+  e$(z%+1)="0A"
+  e$(z%+2)="0A"
+  e$(z%+3)="1D"
+  z%=z%+4
+RETURN
+> PROCEDURE oe
+  e$(z%)="0D"
+  e$(z%+1)="12"
+  e$(z%+2)="12"
+  e$(z%+3)="0D"
+  z%=z%+4
+RETURN
+> PROCEDURE komma
+  e$(z%)="10"
+  e$(z%+1)="18"
+  z%=z%+2
+RETURN
+> PROCEDURE punkt
+  e$(z%)="10"
+  z%=z%+1
+RETURN
+> PROCEDURE ut
+  e$(z%)="17"
+  e$(z%+1)="17"
+  z%=z%+2
+RETURN
+> PROCEDURE 3
+  e$(z%)="11"
+  e$(z%+1)="15"
+  e$(z%+2)="17"
+  e$(z%+4)="09"
+  z%=z%+4
+RETURN

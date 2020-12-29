@@ -1,0 +1,41 @@
+DIM x%(62)
+DIM y%(62)
+DIM a$(17)
+OPEN "I",#1,"a:\side2\ntrdemo\ntr_spl1.ste"
+l%=LOF(#1)
+CLOSE
+BLOAD "a:\side2\ntrdemo\ntr_spl1.ste",VARPTR(sample%)
+DMASOUND V:sample%,V:sample%+l%,0
+FOR s%=0 TO 62
+  x%(s%)=150+COS(s%/10)*80
+  y%(s%)=100+SIN(s%/10)*40
+NEXT s%
+SETCOLOR 0,0,0,0
+SETCOLOR 15,15,15,15
+FOR q%=1 TO 16 STEP 15
+  DEFTEXT q%,0,0,12
+  TEXT 1,13,"PŽR"
+  GET 0,0,15,13,a$(1+q%)
+  GET 16,0,30,13,a$(0+q%)
+  GET 31,0,45,13,a$(-1+q%)
+NEXT q%
+CLS
+GET 0,0,319,199,bkg$
+HIDEM
+e=0
+REPEAT
+  FOR s%=0 TO 62
+    VSYNC
+    PUT 0,0,bkg$
+    FOR e%=0 TO 2
+      IF s%+e%*5>62
+        r%=s%+e%*5-62
+      ELSE
+        r%=s%+e%*5
+      ENDIF
+      PUT x%(r%),y%(r%),a$(e%+15),4
+      PUT x%(r%),y%(r%),a$(e%),6
+    NEXT e%
+  NEXT s%
+UNTIL MOUSEK=2
+DMACONTROL 0

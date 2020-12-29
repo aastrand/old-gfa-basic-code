@@ -1,0 +1,307 @@
+z%=0
+DIM e$(4095)
+a$="ABCDEFGHIJKLMNOPQRSTUVXYZèéô"
+FOR x%=1 TO LEN(a$)
+  b$=MID$(a$,x%,1)
+  IF b$=" "
+    space
+  ENDIF
+  IF b$="A"
+    a
+  ENDIF
+  IF b$="B"
+    b
+  ENDIF
+  IF b$="C"
+    c
+  ENDIF
+  IF b$="D"
+    d1
+  ENDIF
+  IF b$="E"
+    e1
+  ENDIF
+  IF b$="F"
+    f
+  ENDIF
+  IF b$="G"
+    g
+  ENDIF
+  IF b$="H"
+    h1
+  ENDIF
+  IF b$="I"
+    i
+  ENDIF
+  IF b$="J"
+    j
+  ENDIF
+  IF b$="K"
+    k
+  ENDIF
+  IF b$="L"
+    l1
+  ENDIF
+  IF b$="M"
+    m
+  ENDIF
+  IF b$="N"
+    n
+  ENDIF
+  IF b$="O"
+    o
+  ENDIF
+  IF b$="P"
+    p1
+  ENDIF
+  IF b$="Q"
+    q1
+  ENDIF
+  IF b$="R"
+    r1
+  ENDIF
+  IF b$="S"
+    s
+  ENDIF
+  IF b$="T"
+    t
+  ENDIF
+  IF b$="U"
+    u
+  ENDIF
+  IF b$="V"
+    v1
+  ENDIF
+  IF b$="X"
+    x
+  ENDIF
+  IF b$="Y"
+    y
+  ENDIF
+  IF b$="Z"
+    z
+  ENDIF
+  IF b$="è"
+    aa
+  ENDIF
+  IF b$="é"
+    ae
+  ENDIF
+  IF b$="ô"
+    oe
+  ENDIF
+  e$(z%)="00000"
+  z%=z%+1
+NEXT x%
+OPEN "O",#1,"text.pl1"
+FOR c=0 TO z%
+  text$=MID$(e$(c),d,5)
+  text=ASC(text$)
+  OUT #1,text
+NEXT c
+CLOSE #1
+PROCEDURE space
+  e$(z%)="00000"
+  e$(z%+1)="00000"
+  z%=z%+2
+RETURN
+PROCEDURE a
+  e$(z%)="11110"
+  e$(z%+1)="00101"
+  e$(z%+2)="00101"
+  e$(z%+3)="11110"
+  z%=z%+4
+RETURN
+PROCEDURE b
+  e$(z%)="11111"
+  e$(z%+1)="10101"
+  e$(z%+2)="10101"
+  e$(z%+3)="01010"
+  z%=z%+4
+RETURN
+PROCEDURE c
+  e$(z%)="01110"
+  e$(z%+1)="10001"
+  e$(z%+2)="10001"
+  e$(z%+3)="10001"
+  z%=z%+4
+RETURN
+PROCEDURE d1
+  e$(z%)="11111"
+  e$(z%+1)="10001"
+  e$(z%+2)="10001"
+  e$(z%+3)="01110"
+  z%=z%+4
+RETURN
+PROCEDURE e1
+  e$(z%)="11111"
+  e$(z%+1)="10101"
+  e$(z%+2)="10101"
+  e$(z%+3)="10001"
+  z%=z%+4
+RETURN
+PROCEDURE f
+  e$(z%)="11111"
+  e$(z%+1)="00101"
+  e$(z%+2)="00101"
+  e$(z%+3)="00001"
+  z%=z%+4
+RETURN
+PROCEDURE g
+  e$(z%)="01110"
+  e$(z%+1)="10001"
+  e$(z%+2)="10101"
+  e$(z%+3)="01100"
+  z%=z%+4
+RETURN
+PROCEDURE h1
+  e$(z%)="11111"
+  e$(z%+1)="00100"
+  e$(z%+2)="00100"
+  e$(z%+3)="11111"
+  z%=z%+4
+RETURN
+PROCEDURE i
+  e$(z%)="10001"
+  e$(z%+1)="11111"
+  e$(z%+2)="10001"
+  z%=z%+3
+RETURN
+PROCEDURE j
+  e$(z%)="01000"
+  e$(z%+1)="10000"
+  e$(z%+2)="10000"
+  e$(z%+3)="01111"
+  z%=z%+4
+RETURN
+PROCEDURE k
+  e$(z%)="11111"
+  e$(z%+1)="00100"
+  e$(z%+2)="01010"
+  e$(z%+3)="10001"
+  z%=z%+4
+RETURN
+PROCEDURE l1
+  e$(z%)="11111"
+  e$(z%+1)="10000"
+  e$(z%+2)="10000"
+  e$(z%+3)="10000"
+  z%=z%+4
+RETURN
+PROCEDURE m
+  e$(z%)="11111"
+  e$(z%+1)="00010"
+  e$(z%+2)="00100"
+  e$(z%+3)="00010"
+  e$(z%+4)="11111"
+  z%=z%+5
+RETURN
+PROCEDURE n
+  e$(z%)="11111"
+  e$(z%+1)="00010"
+  e$(z%+2)="00100"
+  e$(z%+3)="01000"
+  e$(z%+4)="11111"
+  z%=z%+5
+RETURN
+PROCEDURE o
+  e$(z%)="01110"
+  e$(z%+1)="10001"
+  e$(z%+2)="10001"
+  e$(z%+3)="01110"
+  z%=z%+4
+RETURN
+PROCEDURE p1
+  e$(z%)="11111"
+  e$(z%+1)="00101"
+  e$(z%+2)="00101"
+  e$(z%+3)="00010"
+  z%=z%+4
+RETURN
+PROCEDURE q1
+  e$(z%)="01110"
+  e$(z%+1)="10001"
+  e$(z%+2)="11001"
+  e$(z%+3)="11110"
+  z%=z%+4
+RETURN
+PROCEDURE r1
+  e$(z%)="11111"
+  e$(z%+1)="00101"
+  e$(z%+2)="01101"
+  e$(z%+3)="10010"
+  z%=z%+4
+RETURN
+PROCEDURE s
+  e$(z%)="10010"
+  e$(z%+1)="10101"
+  e$(z%+2)="10101"
+  e$(z%+3)="01001"
+  z%=z%+4
+RETURN
+PROCEDURE t
+  e$(z%)="00001"
+  e$(z%+1)="00001"
+  e$(z%+2)="11111"
+  e$(z%+3)="00001"
+  e$(z%+4)="00001"
+  z%=z%+5
+RETURN
+PROCEDURE u
+  e$(z%)="01111"
+  e$(z%+1)="10000"
+  e$(z%+2)="10000"
+  e$(z%+3)="01111"
+  z%=z%+4
+RETURN
+PROCEDURE v1
+  e$(z%)="00011"
+  e$(z%+1)="01100"
+  e$(z%+2)="10000"
+  e$(z%+3)="01100"
+  e$(z%+4)="00011"
+  z%=z%+5
+RETURN
+PROCEDURE x
+  e$(z%)="11011"
+  e$(z%+1)="00100"
+  e$(z%+2)="00100"
+  e$(z%+3)="11011"
+  z%=z%+4
+RETURN
+PROCEDURE y
+  e$(z%)="00011"
+  e$(z%+1)="00100"
+  e$(z%+2)="11000"
+  e$(z%+3)="00100"
+  e$(z%+4)="00011"
+  z%=z%+5
+RETURN
+PROCEDURE z
+  e$(z%)="11001"
+  e$(z%+1)="10101"
+  e$(z%+2)="10011"
+  e$(z%+3)="10001"
+  z%=z%+4
+RETURN
+PROCEDURE aa
+  e$(z%)="11100"
+  e$(z%+1)="01011"
+  e$(z%+2)="01011"
+  e$(z%+3)="11100"
+  z%=z%+4
+RETURN
+PROCEDURE ae
+  e$(z%)="11101"
+  e$(z%+1)="01010"
+  e$(z%+2)="01010"
+  e$(z%+3)="11101"
+  z%=z%+4
+RETURN
+PROCEDURE oe
+  e$(z%)="01101"
+  e$(z%+1)="10010"
+  e$(z%+2)="10010"
+  e$(z%+3)="01101"
+  z%=z%+4
+RETURN

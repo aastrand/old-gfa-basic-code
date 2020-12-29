@@ -1,0 +1,869 @@
+'
+' STiK-DEV-Kit for GFABASIC (Release 02)
+'
+' Coded by Lonny Pursell and Manfred Ssykor (July '96)
+'
+' You can reach us via eMail:
+'
+' Lonny Pursell  (lpursell@bright.net (Internet))
+' Manfred Ssykor (msy@lafp.tng.oche.de (Internet))
+'                (Manfred Ssykor @ AC3 (Mausnet))
+'
+' Release 02 notes:
+' Bug fixed in routines @module$, @author$, and @version$ (Oct '96) lp
+'
+CLS
+~GRAF_MOUSE(0,0)
+PRINT "p STiK Test  v0.01 q"
+stik_init&=@init_stik
+'
+SELECT stik_init&
+CASE 0 !no errors - stik is valid?
+  '
+  PRINT
+  PRINT @module$
+  PRINT @author$
+  PRINT @version$
+  PRINT @krgetfree(0)
+  ' PRINT @krgetfree(1)
+  PRINT @getvstr$("USERNAME")
+  PRINT @getvstr$("FULLNAME")
+  PRINT @get_err_text$(0)
+  ' PRINT @get_err_text$(1)
+  PRINT @carrier_detect
+  PRINT @housekeep
+  PRINT @set_flag(16)
+  PRINT @clear_flag(16)
+  '
+  ' PRINT "FREE: ";@krgetfree(1)
+  ' a%=@krmalloc(256)
+  ' PRINT "MEM ADDR: ";a%
+  ' PRINT "FREE: ";@krgetfree(1)
+  ' b%=@krmalloc(256)
+  ' PRINT "MEM ADDR: ";b%
+  ' PRINT "FREE: ";@krgetfree(1)
+  ' PRINT "FREE BLOCK:"
+  ' ~@krfree(a%)
+  ' PRINT "FREE: ";@krgetfree(1)
+  ' PRINT "FREE BLOCK:"
+  ' ~@krfree(b%)
+  ' PRINT "FREE: ";@krgetfree(1)
+  '
+  PRINT
+  PRINT "Resolving..."
+  ' x&=@resolve("irc.ais.net",V:hn%,V:ip%,1)
+  x&=@resolve("brutus.bright.net",V:hn%,V:ip%,1)
+  IF x&<FALSE
+    PRINT "ERROR: ";@get_err_text$(x&)
+  ELSE
+    PRINT "NO ERRORS"
+  ENDIF
+  IF hn%>FALSE
+    PRINT "REALNAME: ";CHAR{hn%}
+  ELSE
+    PRINT "hn%=";hn%
+  ENDIF
+  PRINT "IP: ";@expand_ip$(ip%,".")
+  '
+CASE -1
+  PRINT "SYSTEM HAS NO COOKIE JAR!"
+CASE -2
+  PRINT "STIK NOT FOUND!"
+CASE -3
+  PRINT "STIK IS DISABLED!"
+CASE -4
+  PRINT "STIK MAGIC NOT FOUND!"
+CASE -5
+  PRINT "TRANSPORT LAYER NOT LOADED!"
+DEFAULT
+  PRINT "UNKNOWN ERROR: THIS SHOULD NEVER HAPPEN!"
+ENDSELECT
+'
+PRINT "p Press any key to continue... q";
+~INP(2)
+EDIT
+'
+> PROCEDURE show(a%,l%) !debug
+  LOCAL b&,i%
+  FOR i%=0 TO l%-1
+    b&=BYTE{a%+i%}
+    IF b&=FALSE
+      PRINT "p0q";
+    ELSE
+      OUT 5,b&
+    ENDIF
+  NEXT i%
+  PRINT
+RETURN
+' ** misc
+> FUNCTION expand_ip$(ip%,s$)
+' op%  the ip you wish to expand into decimal format
+' s$   the seperator you selected
+LOCAL ip$
+ip$=STR$(BYTE(SHR(ip%,24)))
+ip$=ip$+s$+STR$(BYTE(SHR(ip%,16)))
+ip$=ip$+s$+STR$(BYTE(SHR(ip%,8)))
+ip$=ip$+s$+STR$(BYTE(ip%))
+RETURN ip$
+ENDFUNC
+> FUNCTION ip_to_inline(ip$)
+LOCAL dummy&,pos&
+INLINE ip_adr%,4
+IF LEN(ip$)>=7
+pos&=INSTR(ip$,".")
+IF pos&
+  dummy&=VAL(LEFT$(ip$,INSTR(ip$,".")-1))
+  IF dummy&>-1 AND dummy&<256
+    BYTE{ip_adr%}=dummy&
+    ip$=MID$(ip$,pos&+1)
+    pos&=INSTR(ip$,".")
+    IF pos&
+      dummy&=VAL(LEFT$(ip$,INSTR(ip$,".")-1))
+      IF dummy&>-1 AND dummy&<256
+        BYTE{ip_adr%+1}=dummy&
+        ip$=MID$(ip$,pos&+1)
+        pos&=INSTR(ip$,".")
+        IF pos&
+          dummy&=VAL(LEFT$(ip$,INSTR(ip$,".")-1))
+          IF dummy&>-1 AND dummy&<256
+            BYTE{ip_adr%+2}=dummy&
+            ip$=MID$(ip$,pos&+1)
+            dummy&=VAL(LEFT$(ip$,INSTR(ip$,".")-1))
+            IF dummy&>-1 AND dummy&<256
+              BYTE{ip_adr%+3}=dummy&
+              RETURN TRUE
+            ELSE
+              RETURN FALSE
+            ENDIF
+          ELSE
+            RETURN FALSE
+          ENDIF
+        ELSE
+          RETURN FALSE
+        ENDIF
+      ELSE
+        RETURN FALSE
+      ENDIF
+    ELSE
+      RETURN FALSE
+    ENDIF
+  ELSE
+    RETURN FALSE
+  ENDIF
+ELSE
+  RETURN FALSE
+ENDIF
+ELSE
+RETURN FALSE
+ENDIF
+ENDFUNC
+' -- library routines ----------------------------------------------------------
+> FUNCTION cookie_get(id$,VAR i%) !v0.03
+$F%
+.| Called from : init_stik-1,
+' N$   TARGET COOKIE            [MAX 4 CHARS]
+' CI%  RETURN COOKIE INFO       [LONG: 0-?]
+'      RETURN COOKIE STATUS     [TRUE/FALSE]
+LOCAL s!,a%
+CLR s!,i%
+a%=LPEEK(&H5A0) !GET COOKIE JAR ADDRESS
+IF a%>FALSE !COOKIE JAR EXIST?
+DO
+IF MKL$(LPEEK(a%))=id$ !FOUND COOKIE?
+  i%=LPEEK(a%+4) !GET COOKIE INFO
+  s!=TRUE !SET COOKIE EXIST FLAG
+  EXIT IF TRUE
+ENDIF
+EXIT IF LPEEK(a%)=FALSE !EOL?
+a%=ADD(a%,8)
+LOOP
+ENDIF
+RETURN s!
+ENDFUNC
+' -- stik access routines v1.00 ------------------------------------------------
+' ** stik setup
+> FUNCTION init_stik
+$F%
+.| Glob. Var.: stik!,stik&,stik%,stik_tpl%,stik$,stik_get_dftab%
+.|     stik_etm_exec%,stik_config%,stik_debug%,stik_tpl%,stik&
+.|     stik_module%,stik_author%,stik_version%,stik_krmalloc%
+.|     stik_krfree%,stik_krgetfree%,stik_krrealloc%,stik_get_err_text%
+.|     stik_getvstr%,stik_carrier_detect%,stik_tcp_open%,stik_tcp_close%
+.|     stik_tcp_send%,stik_tcp_wait_state%,stik_tcp_ack_wait%
+.|     stik_udp_open%,stik_udp_close%,stik_udp_send%,stik_cnkick%
+.|     stik_cnbyte_count%,stik_cnget_char%,stik_cnget_ndb%
+.|     stik_cnget_block%,stik_housekeep%,stik_resolve%,stik_ser_disable%
+.|     stik_ser_enable%,stik_set_flag%,stik_clear_flag%,stik_cngetinfo%
+.|     stik_client_ip%,stik_provider%,stik_ttl&,stik_ping_ttl&
+.|     stik_mtu&,stik_mss&,stik_df_bufsize&,stik_rcv_window&
+.|     stik_def_rtt&,stik_time_wait_time&,stik_unreach_resp&
+.|     stik_cn_time%,stik_cd_valid&,stik_tclosed&,stik_tlisten&
+.|     stik_tsyn_sent&,stik_tsyn_recv&,stik_testablish&,stik_tfin_wait1&
+.|     stik_tfin_wait2&,stik_tclose_wait&,stik_tclosing&,stik_tlast_ack&
+.|     stik_ttime_wait&,stik_e_normal&,stik_e_obuffull&,stik_e_nodata&
+.|     stik_e_eof&,stik_e_rreset&,stik_e_ua&,stik_e_nomem&,stik_e_refuse&
+.|     stik_e_badsyn&,stik_e_badhandle&,stik_e_listen&,stik_e_noccb&
+.|     stik_e_noconnection&,stik_e_connectfail&,stik_e_badclose&
+.|     stik_e_usertimeout&,stik_e_cntimeout&,stik_e_cantresolve&
+.|     stik_e_baddname&,stik_e_lostcarrier&,stik_e_nohostname&
+.|     stik_e_dnsworklimit&,stik_e_nonameserver&,stik_e_dnsbadformat&
+.|     stik_e_unreachable&,stik_e_dnsnoaddr&,stik_e_lasterror&
+.|     stik_fl_do_resolve&,stik_fl_housekeep&,stik_p_icmp&,stik_p_tcp&
+.|     stik_p_udp&,ip_adr%
+.| Calls  : cookie_get,get_dftab
+LOCAL i&,stik&
+LOCAL stik_debug%
+CLR stik!,stik&,stik%,stik_tpl%,stik$
+IF LPEEK(&H5A0)>FALSE                       !cookie jar exist?
+stik!=@cookie_get("STiK",stik%)
+IF stik!=TRUE                            !stik cookie exist?
+IF stik%>FALSE                         !stik enabled?
+stik$=STRING$(11,CHR$(FALSE))
+FOR i&=1 TO 10
+  MID$(stik$,i&,1)=CHR$(PEEK(stik%+(i&-1)))
+NEXT i&
+stik$=CHAR{V:stik$} !clip
+IF stik$="STiKmagic"                 !stik magic?
+  '
+  ' ** init stik setup functions
+  LET stik_get_dftab%=LONG{stik%+10}
+  LET stik_etm_exec%=LONG{stik%+14}
+  LET stik_config%=LONG{stik%+18}
+  LET stik_debug%=LONG{stik%+22}         !debug
+  '
+  stik_tpl%=@get_dftab("TRANSPORT_TCPIP") !get pointer to function table
+  IF stik_tpl%>FALSE !null pointer?
+    '
+    stik&=FALSE !set stik valid flag
+    '
+    ' ** init stik function pointers
+    LET stik_module%=LONG{stik_tpl%}
+    LET stik_author%=LONG{stik_tpl%+4}
+    LET stik_version%=LONG{stik_tpl%+8}
+    LET stik_krmalloc%=LONG{stik_tpl%+12}
+    LET stik_krfree%=LONG{stik_tpl%+16}
+    LET stik_krgetfree%=LONG{stik_tpl%+20}
+    LET stik_krrealloc%=LONG{stik_tpl%+24}
+    LET stik_get_err_text%=LONG{stik_tpl%+28}
+    LET stik_getvstr%=LONG{stik_tpl%+32}
+    LET stik_carrier_detect%=LONG{stik_tpl%+36}
+    LET stik_tcp_open%=LONG{stik_tpl%+40}
+    LET stik_tcp_close%=LONG{stik_tpl%+44}
+    LET stik_tcp_send%=LONG{stik_tpl%+48}
+    LET stik_tcp_wait_state%=LONG{stik_tpl%+52}
+    LET stik_tcp_ack_wait%=LONG{stik_tpl%+56}
+    LET stik_udp_open%=LONG{stik_tpl%+60}
+    LET stik_udp_close%=LONG{stik_tpl%+64}
+    LET stik_udp_send%=LONG{stik_tpl%+68}
+    LET stik_cnkick%=LONG{stik_tpl%+72}
+    LET stik_cnbyte_count%=LONG{stik_tpl%+76}
+    LET stik_cnget_char%=LONG{stik_tpl%+80}
+    LET stik_cnget_ndb%=LONG{stik_tpl%+84}
+    LET stik_cnget_block%=LONG{stik_tpl%+88}
+    LET stik_housekeep%=LONG{stik_tpl%+92}
+    LET stik_resolve%=LONG{stik_tpl%+96}
+    LET stik_ser_disable%=LONG{stik_tpl%+100}
+    LET stik_ser_enable%=LONG{stik_tpl%+104}
+    LET stik_set_flag%=LONG{stik_tpl%+108}
+    LET stik_clear_flag%=LONG{stik_tpl%+112}
+    LET stik_cngetinfo%=LONG{stik_tpl%+116}
+    '
+    ' ** get stik global configurations
+    LET stik_client_ip%=LONG{stik_config%}
+    LET stik_provider%=LONG{stik_config%+4}
+    LET stik_ttl&=CARD{stik_config%+8}
+    LET stik_ping_ttl&=CARD{stik_config%+10}
+    LET stik_mtu&=CARD{stik_config%+12}
+    LET stik_mss&=CARD{stik_config%+14}
+    LET stik_df_bufsize&=CARD{stik_config%+16}
+    LET stik_rcv_window&=CARD{stik_config%+18}
+    LET stik_def_rtt&=CARD{stik_config%+20}
+    LET stik_time_wait_time&=WORD{stik_config%+22}
+    LET stik_unreach_resp&=WORD{stik_config%+24}
+    LET stik_cn_time%=LONG{stik_config%+26}
+    LET stik_cd_valid&=WORD{stik_config%+30}
+    '
+    ' tcp connection states
+    LET stik_tclosed&=FALSE
+    LET stik_tlisten&=1
+    LET stik_tsyn_sent&=2
+    LET stik_tsyn_recv&=3
+    LET stik_testablish&=4
+    LET stik_tfin_wait1&=5
+    LET stik_tfin_wait2&=6
+    LET stik_tclose_wait&=7
+    LET stik_tclosing&=8
+    LET stik_tlast_ack&=9
+    LET stik_ttime_wait&=10
+    '
+    ' tcp and connection error states
+    LET stik_e_normal&=FALSE
+    LET stik_e_obuffull&=-1
+    LET stik_e_nodata&=-2
+    LET stik_e_eof&=-3
+    LET stik_e_rreset&=-4
+    LET stik_e_ua&=-5
+    LET stik_e_nomem&=-6
+    LET stik_e_refuse&=-7
+    LET stik_e_badsyn&=-8
+    LET stik_e_badhandle&=-9
+    LET stik_e_listen&=-10
+    LET stik_e_noccb&=-11
+    LET stik_e_noconnection&=-12
+    LET stik_e_connectfail&=-13
+    LET stik_e_badclose&=-14
+    LET stik_e_usertimeout&=-15
+    LET stik_e_cntimeout&=-16
+    LET stik_e_cantresolve&=-17
+    LET stik_e_baddname&=-18
+    LET stik_e_lostcarrier&=-19
+    LET stik_e_nohostname&=-20
+    LET stik_e_dnsworklimit&=-21
+    LET stik_e_nonameserver&=-22
+    LET stik_e_dnsbadformat&=-23
+    LET stik_e_unreachable&=-24
+    LET stik_e_dnsnoaddr&=-25
+    LET stik_e_lasterror&=25
+    '
+    ' flag definitions
+    LET stik_fl_do_resolve&=FALSE
+    LET stik_fl_housekeep&=1
+    '
+    ' protocol field
+    LET stik_p_icmp&=1
+    LET stik_p_tcp&=6
+    LET stik_p_udp&=17
+    '
+  ELSE !transport layer not loaded?
+    stik&=-5
+  ENDIF
+ELSE !stik magic not found?
+  stik&=-4
+ENDIF
+ELSE !stik disabled?
+stik&=-3
+ENDIF
+ELSE !stik cookie not found?
+stik&=-2
+ENDIF
+ELSE !no cookie jar?
+stik&=TRUE
+ENDIF
+RETURN stik&
+ENDFUNC
+> FUNCTION get_dftab(tl.$)
+$F%
+.| Called by : init_stik-1,
+LOCAL tl%
+INLINE tl%,32
+IF LEN(tl.$)<32
+CHAR{tl%}=tl.$
+ELSE
+PRINT "Error at get_dftab(): len(tl.$) too long"
+ENDIF
+RETURN C:stik_get_dftab%(L:tl%) !pointer%
+ENDFUNC
+> FUNCTION etm_exec(m.$)
+$F%
+' unknown function (external module execute?)
+LOCAL r%,m%
+INLINE m%,32
+IF LEN(m.$)<32
+CHAR{m%}=m.$
+ELSE
+PRINT "Error at etm_exec(): len(m.$) too long"
+ENDIF
+r%=C:stik_etm_exec%(L:m%)
+RETURN WORD{V:r%+2} !word&
+ENDFUNC
+' ** stik functions
+> FUNCTION module$
+RETURN CHAR{stik_module%} !string$
+ENDFUNC
+> FUNCTION author$
+RETURN CHAR{stik_author%} !string$
+ENDFUNC
+> FUNCTION version$
+RETURN CHAR{stik_version%} !string$
+ENDFUNC
+> FUNCTION krmalloc(size%)
+$F%
+'
+' - Allocate a block of memory from STiK's internal buffer.
+' - Returns NULL (0) if sufficient memory is not available.
+' - These memory functions are basically the code in K&R 1 pp 174 - 177
+'   but there are some minor differences.  morecore is *never* called.
+'   These functions use one block of memory that is Malloc'd when
+'   the ACC loads.  Also, the header size is 8 bytes since allocations
+'   greater than 2^16 are allowed, therefore memory is always
+'   allocated in multiples of 8 bytes.
+' - Some bits in the headers are checked during KRmalloc() and KRfree()
+'   to determine if memory corruption has occured.
+'
+RETURN C:stik_krmalloc%(L:size%) !pointer%
+ENDFUNC
+> FUNCTION krfree(block%)
+$F%
+'
+' - Free a block that was allocated by KRmalloc() or KRrealloc().
+' - Currently, KRfree() does *not* check for a NULL pointer...
+'
+RETURN C:stik_krfree%(L:block%) !void~
+ENDFUNC
+> FUNCTION krrealloc(block%,newsize%)
+$F%
+'
+' - Change the size of an allocated block.  If newsize is greater than
+'   oldsize, then copy the contents into the new block.
+' - If (newsize = 0) then free the block and return NULL.
+' - If (block = 0) then allocate a new block of newsize
+'   bytes, but zero the contents before returning.
+'
+RETURN C:stik_krrealloc%(L:block%,L:newsize%) !pointer%
+ENDFUNC
+> FUNCTION krgetfree(flag&)
+$F%
+'
+' - Return the amount of free space left in STiK's internal buffer.
+' - If flag is TRUE return the largest block, otherwise return
+'   total available space.
+'
+RETURN C:stik_krgetfree%(W:flag&) !long%
+ENDFUNC
+> FUNCTION get_err_text$(code&)
+LOCAL sp%
+'
+' - Returns a pointer to a description of an internal STiK error code.
+'   If code is out of range, a pointer to "" is returned.
+'
+sp%=C:stik_get_err_text%(W:code&)
+RETURN CHAR{sp%} !string$
+ENDFUNC
+> FUNCTION getvstr$(var$)
+LOCAL sp%,var%
+LOCAL value$
+'
+' - Returns a pointer to the value of a STiK config variable
+'   set in DEFAULT.CFG  The lookup is not case sensitive.
+'   The pointer is to the first non blank char after the '='.
+' - If a variable does not exist, a pointer to "0" is returned.
+' - If a variable has no `= value' "1" is returned (present = TRUE)
+' - If a variable has '=', but no value, then "0" is returned.
+'
+INLINE var%,40
+IF LEN(var$)<40
+CHAR{var%}=var$
+ELSE
+PRINT "Error at getvstr$(): len(var$) too long"
+ENDIF
+sp%=C:stik_getvstr%(L:var%)
+IF sp%=FALSE OR sp%=1
+value$=""
+ELSE
+value$=CHAR{sp%}
+ENDIF
+RETURN value$ !string$
+ENDFUNC
+> FUNCTION carrier_detect
+$F%
+LOCAL cd%
+'
+' - If the config variable CDVALID is FALSE, then 0 (unknown) is returned.
+' - Otherwise, returns +1 for carrier, -1 for no carrier.
+'
+cd%=C:stik_carrier_detect%()
+RETURN WORD{V:cd%+2} !word&
+ENDFUNC
+> FUNCTION tcp_open(rhost$,rport%,tos&,obsize&)
+$F%
+LOCAL ec%
+'
+' - Attempts to open a connection to rhost on rport.
+' - tos is Type of Service.  I've never experimented with non zero values.
+' - obsize is the size of the output buffer to allocate.
+'   TCP_send() places data in this buffer.  Size dependant on requirements.
+'   Bigger is not necessarily better.  500 to 2000 should be OK.
+' - TCP_open() returns a connection handle (0..n) or a
+'   a negative error code.
+' - TCP_open() returns immediately, without waiting for the
+'   connection to establish.
+'
+' - Passive opens:-
+' - If rhost is "", then the connection becomes a LISTEN socket, and
+'   waits for a connection request from a remote host.
+' - In this case, rport is the assignment of the local port
+'   and *not* the remote port...
+' - There is no provision for limiting the socket to listen for
+'   connection from a particular host or port. (ie: always INADDR_ANY)
+' - The port must be continually polled for input.  There is
+'   no other way to see if a connection has been made.
+' - Sending data to a connection in LISTEN mode is an error.
+' - If a remote host makes a connection, the connection will
+'   no longer be in LISTEN mode.  Requests from other hosts
+'   will be denied.  To circumvent this, do another TCP_open(0,...)
+'   when the first connection is activated.  (or have several
+'   connections passive opened at the same time)
+'
+' - NOTE To test the current status of the socket, simply
+'   call CNbyte_count().  If E_LISTEN is returned, then
+'   the socket is still in TLISTEN state.  Any other function
+'   that has a connection handle as an argument will return
+'   the same error, except TCP_close().
+'
+' - Author's apology...  It's very rough, but it's really only
+'   for my own testing.  If I don't have time to make something
+'   better soon, this method should at least be usable.  The reason
+'   that it is so rough is that I never intended having LISTEN
+'   sockets.  Hence, this is a hack.
+'
+IF rhost$=""
+rhost$="0.0.0.0"
+ENDIF
+IF @ip_to_inline(rhost$)
+ec%=C:stik_tcp_open%(L:ip_adr%,W:rport%,W:tos&,W:obsize&)
+RETURN WORD{V:ec%+2} !word&
+ELSE
+RETURN -23
+ENDIF
+ENDFUNC
+> FUNCTION tcp_close(cn&,timeout&)
+$F%
+LOCAL ec%
+'
+' - Closes a connection.  cn is the connection handle.
+' - Returns 0 or a negative error code.
+' - timeout is the time in seconds to wait for the connection to close.
+'   TCP_close() must negotiate the close with the remote host, so
+'   it can take some time if the net is slow.  Pending data may need
+'   to be received and discarded before the connection closes cleanly.
+' - Note that TCP_close() *must* be called in order to free memory
+'   that has been allocated for the connection.
+' - A timeout of 0 is acceptable for immediate close.
+' - If the ESC key is pressed during the timeout period, TCP_close()
+'   returns immediately with a E_USERTIMEOUT error code.
+'
+ec%=C:stik_tcp_close%(W:cn&,W:timeout&)
+RETURN WORD{V:ec%+2} !word&
+ENDFUNC
+> FUNCTION tcp_send(cn&,buf%,len&)
+$F%
+LOCAL ec%
+'
+' - Send len bytes from buf on the connection cn.
+' - Returns E_NORMAL for success, or an error code.
+' - Note that the error E_OBUFFULL is *not* a fatal error.
+'   If E_OBUFFULL is return, you should loop, for your own timeout period,
+'   waiting for the output buffer to clear.  If you have defined a buffer
+'   that is smaller than the block you are sending, it will never clear.
+'
+IF len&>FALSE
+ec%=C:stik_tcp_send%(W:cn&,L:buf%,W:len&)
+ELSE
+PRINT "Error at tcp_send(): len& = 0"
+ENDIF
+RETURN WORD{V:ec%+2} !word&
+ENDFUNC
+> FUNCTION tcp_wait_state(cn&,state&,timeout&)
+$F%
+LOCAL ec%
+'
+' - Wait for timeout seconds for the connection cn, to reach a particular
+'   TCP state.  The primary use for this function is to wait for the
+'   TESTABLISH state after calling TCP_open() (though this is not really
+'   necessary).
+' - Returns E_NORMAL or an error code.
+' - If the ESC key is pressed while this function is waiting,
+'   it returns E_USERTIMEOUT.
+'
+ec%=C:stik_tcp_wait_state%(W:cn&,W:state&,W:timeout&)
+RETURN WORD{V:ec%+2} !word&
+ENDFUNC
+> FUNCTION tcp_ack_wait(cn&,timeout&)
+$F%
+LOCAL ec%
+'
+' - Wait for all data in the output buffer to be acknowledged by
+'   the remote host.
+' - Note that the timeout is in milliseconds
+' - Returns E_NORMAL regardless of whether the timeout is reached
+'   or the output buffer clears.
+' - This is a kludge that you should probably never use...
+'
+ec%=C:stik_tcp_ack_wait%(W:cn&,W:timeout&)
+RETURN WORD{V:ec%+2} !word&
+ENDFUNC
+> FUNCTION udp_open(rhost$,rport&)
+$F%
+LOCAL ec%
+'
+' - Open a UDP (datagram) connection with rhost on rport.
+' - Returns connection handle or error code.
+' - Note that there is really no such thing as a UDP `connection'.
+'   The UDP functions provide a convenient and consistent method
+'   for communicating with remote hosts using UDP.
+' - UDP is used primarily by the domain name resolver.
+'
+IF @ip_to_inline(rhost$)
+ec%=C:stik_udp_open%(L:ip_adr%,W:rport&)
+RETURN WORD{V:ec%+2} !word&
+ELSE
+RETURN -23
+ENDIF
+ENDFUNC
+> FUNCTION udp_close(cn&)
+$F%
+LOCAL ec%
+'
+' - Close the UDP connection cn.
+' - Frees the connection handle and any blocks pending in the
+'   input queue, returns immediately.
+'
+ec%=C:stik_udp_close%(W:cn&)
+RETURN WORD{V:ec%+2} !word&
+ENDFUNC
+> FUNCTION udp_send(cn&,buf%,len&)
+$F%
+LOCAL ec%
+'
+' - Sends len bytes from buf on the connection cn.
+' - Returns E_NORMAL or an error code.
+' - NOTE that the the data will be sent as a single UDP packet, so
+'   you should make sure that it is appropriately sized for your MTU.
+'
+IF len&>FALSE
+ec%=C:stik_udp_send%(W:cn&,L:buf%,W:len&)
+ELSE
+PRINT "Error at udp_send(): len& = 0"
+ENDIF
+RETURN WORD{V:ec%+2} !word&
+ENDFUNC
+> FUNCTION cnkick(cn&)
+$F%
+LOCAL ec%
+'
+' - `kick' the connection cn.
+' - If there is data waiting to be sent, then restart the retransmission
+'   sequence as though it is the first transmission.
+'   If there is no data waiting, send an ACK packet to the remote host
+'   to let them know we're still here.
+' - In theory this is a pointless function.  It is provided so that when
+'   the user starts bashing the keyboard during a long delay, the
+'   programmer arrange that something happens as a result.  This should
+'   save lots of valuable Atari hardware. :-))
+' - Since the retransmission algorithm uses exponential backoff,
+'   (ie: timeout doubles at every retransmission) the function is
+'   probably not entirely pointless.
+' - TCP specs state that excessive retransmissions should be avoided.
+' - Returns E_NORMAL or an error code if the connection is invalid.
+'
+ec%=C:stik_cnkick%(W:cn&)
+RETURN WORD{V:ec%+2} !word&
+ENDFUNC
+> FUNCTION cnbyte_count(cn&)
+$F%
+LOCAL ec%
+'
+' - Return the number of bytes waiting in the input queue for
+'   connection cn, or an error code.
+'
+ec%=C:stik_cnbyte_count%(W:cn&)
+RETURN WORD{V:ec%+2} !word&
+ENDFUNC
+> FUNCTION cnget_char(cn&)
+$F%
+LOCAL ec%
+'
+' - Return the next char from the input queue for cn, or
+'   a negative error code.  A return of E_NODATA is *not* fatal.
+' - Note that if you are using CNget_char() for data input then
+'   your loop *must* include CNbyte_count(), or the housekeep()
+'   function.
+'
+ec%=C:stik_cnget_char%(W:cn&)
+RETURN WORD{V:ec%+2} !word&
+ENDFUNC
+> FUNCTION cnget_ndb(cn&)
+$F%
+'
+' - Return a pointer to the next block on the input queue for cn,
+'   or 0 if there are no packets queued.
+' - This is potentially the most efficient way of reading the
+'   input queue, because the NDB contains a point to the actual
+'   packet that was read in initially.  No data has been copied
+'   up to this point.
+' - There is no way defined for CNget_NDB() to return any other
+'   connection error status.
+' - The NDB structure is defined in TRANSPRT.H
+' - Since CNget_NDB() unlinks the packet from the input queue,
+'   you must use KRfree() to free the packet and the NDB structure
+'   as well.  The following code is a guide..
+'
+'       NDB *blk = CNget_NDB(cn);
+'
+'        if (blk != (NDB *)NULL) {
+'            process_block(blk);
+'            if (blk->ptr)           /* blk->ptr will never be NULL, though */
+'                KRfree(blk->ptr);
+'            KRfree(blk);
+'        }
+'
+RETURN C:stik_cnget_ndb%(W:cn&) !pointer%
+ENDFUNC
+> FUNCTION cnget_block(cn&,blk%,len&)
+$F%
+LOCAL ec%
+'
+' - Fills a block starting at blk with len bytes from cn.
+' - If the input queue has less than len bytes, then no
+'   data will be transferred.
+' - Returns the number of bytes you requested, or an
+'   error code.  E_NODATA is *not* a fatal error.
+'
+ec%=C:stik_cnget_block%(W:cn&,L:blk%,W:len&)
+RETURN WORD{V:ec%+2} !word&
+ENDFUNC
+> FUNCTION housekeep
+$F%
+'
+' - Performs internal housekeeping duties.
+'   You don't really need to call this function, but an explanation
+'   is necessary.  housekeep() is called internally by several
+'   of the other functions listed here.  In particular, all
+'   of the CN input functions call housekeep() *except* CNget_char().
+'   (otherwise a whole packet could be received every time CNget_char()
+'   is called!)
+' - STiK does not do any background or interrupt processing.
+'   Everything is acheived by polling.  housekeep() is the
+'   central function of STiK that does this polling.  It calls
+'   these functions:-
+'
+'    do_resolve();       Resolver processing, including reading packets
+'    slip_in();          Reading the serial port
+'    slip_out();         Writing to the serial port
+'    tcp_timer();        TCP retransmissions
+'    frag_ttl_check();   Check time to live in fragment reassembly queue
+'
+' - Currently, STiK.ACC, when enabled, calls evnt_multi with
+'   MU_TIMER set a timeout of 200 milliseconds.  housekeep()
+'   is called whenever evnt_multi returns.
+'
+' - NOTE that the efficiency of STiK relates to this function, but I
+'   have to admit that housekeep() has not been carefully thought out.
+'   However, if the functions called by housekeep() have no work
+'   to do, they return quickly.  All the same, they can each be called
+'   many times each second.  It would probably be sufficient to call
+'   them a maximum of perhaps 5 or 10 times per second.
+'
+RETURN C:stik_housekeep%() !void~
+ENDFUNC
+> FUNCTION resolve(dn$,rdn%,alist%,lsize&)
+$F%
+LOCAL ec%,dn%
+'
+' - Resolve a domain name into one or more IP addresses.
+'   dn is the domain name.
+'   rdn is the real domain name, which is returned if dn is an alias (CNAME).
+'   alist is a pointer to an array where the IP address(s) are returned.
+'   lsize is the size of that array.
+' - If the information is in local cache, then resolve will return it
+'   immediately, otherwise an algorithm for query of nameservers
+'   is initiated.  This can take some time, however, the resolver has
+'   an internal limit on the amout of work it will do in attempting
+'   to resove a hostname.  (Hence the error code `work limit reached')
+' - If rdn = NULL then no value is assigned to it.
+'   Otherwise, a pointer to the domain name associated with the addresses
+'   is assigned to *rdn, even if it is the same as that requested.
+'   This pointer must be freed using KRfree().
+' - resolve() returns the number of addresses copied to alist,
+'   or a negative error code.
+' - In retrospect, it might not have been all that smart of me to write
+'   my own DNS resolver, but it is at least educational :-))
+'   All the same, it is *not* yet finished.  There are some bugs in
+'   the code at present, and also inefficiency in my algorithm.
+' - I'll work on improving it when (if?) I get the chance.
+' - NOTE that STiK.ACC will save the dns cache to domain.txt
+'   every five minutes if AES is active and STiK is enabled.
+'
+INLINE dn%,80
+IF LEN(dn$)<80
+CHAR{dn%}=dn$
+ELSE
+PRINT "Error at resolve(): len(dn$) too long"
+ENDIF
+ec%=C:stik_resolve%(L:dn%,L:rdn%,L:alist%,W:lsize&)
+RETURN WORD{V:ec%+2} !word&
+ENDFUNC
+> FUNCTION ser_disable
+$F%
+'
+' - This function disables the serial port prior to disk I/O
+'   It should only be necessary for combinations of baud rate/
+'   cpu speed that do not allow DMA and serial I/O to work together.
+'   Internally, it calls Jan Kriesten's DEVICE.LIB function
+'   StopReceiver().  This, in turn, calls an IOCTL function
+'   that might only work with HSMODEM loaded.  I'm not sure.
+' - In the current version of STiK this (and ser_enable)
+'   return without doing anything.  I'm waiting for bug
+'   reports before I decide what to do with it.
+' - NOTE that if the port is disabled (in later STiK versions)
+'   it *must* be reenabled immediately after the disk I/O, or
+'   that is the end of the TCP session :-))
+'
+RETURN C:stik_ser_disable%() !void~
+ENDFUNC
+> FUNCTION ser_enable
+$F%
+'
+' - See ser_disable...
+'
+RETURN C:stik_ser_enable%() !void~
+ENDFUNC
+> FUNCTION set_flag(flag&)
+$F%
+LOCAL ec%
+'
+' - This calls an assembler routine that sets one of 64 possible
+'   flags using TAS.  The idea is that with proper flag setting
+'   STiK should function properly in a pre-emptive multitasking
+'   environment.  They could also be used for locking of other
+'   well defined processes, such as mailers etc.
+' - Currently I'm only using the first two of these flags, for
+'   housekeep() and do_resolve() which are not re-entrant.
+' - I've yet to actually do the work which would ensure proper
+'   function of STiK in a pre-emptive environment, so if it
+'   does work, that's accidental.
+' - set_flag() returns TRUE if the flag was already set
+'   (ie: Someone else owns the lock) or FALSE if the flag was clear,
+'   and set_flag() changed it successfully.  (ie: the lock is ours).
+'   (in other words, set_flag() returns the value the flag had
+'    before this call)
+'
+' - NOTE that anyone wishing to define a new lock should coordinate
+'   with me!!!
+'
+ec%=C:stik_set_flag%(W:flag&)
+RETURN WORD{V:ec%+2} !word&
+ENDFUNC
+> FUNCTION clear_flag(flag&)
+$F%
+'
+' - Clears a flag regardless of it's current status.  Returns nothing.
+'
+RETURN C:stik_clear_flag%(W:flag&) !void~
+ENDFUNC
+> FUNCTION cngetinfo(cn&)
+$F%
+'
+' - Returns a pointer to a CIB structure that has information
+'   about the connection associated with the handle `cn'.
+' - This includes protocol, remote host, remote port, and
+'   the local port.  The address of the local host can be
+'   found with stik_cfg->client_ip
+' - The pointer is to a live part of the connection information,
+'   so don't change anything unless you know what you're doing.
+' - The definition of a CIB can be found in the `trasnprt.h' file.
+'
+RETURN C:stik_cngetinfo%(W:cn&) !pointer%
+ENDFUNC
+' eof
+

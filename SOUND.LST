@@ -1,0 +1,45 @@
+CLS
+hamta
+BLOAD a$,VARPTR(a%)
+initgraph
+rita1
+PROCEDURE initgraph
+  BOX 0,0,639,100
+RETURN
+> PROCEDURE play
+  DMASOUND V:a%,V:a%+l,f%
+RETURN
+> PROCEDURE stop
+  DMACONTROL 0
+RETURN
+> PROCEDURE rita1
+  s%=l/640
+  FOR x%=V:a% TO V:a%+l STEP s%
+    y%=PEEK(x%)
+    IF y%<128
+      DRAW z%,50 TO z%,y%/2-14
+    ELSE
+      DRAW z%,50 TO z%,(y%-256)/2-14
+    ENDIF
+    EXIT IF INKEY$=" "
+    z%=z%+1
+  NEXT x%
+RETURN
+> PROCEDURE rita2
+  s%=l/640
+  FOR x%=V:a% TO V:a%+l STEP s%
+    y%=PEEK(x%)
+    DRAW z%,50 TO z%,y%/2-14
+    EXIT IF INKEY$=" "
+    z%=z%+1
+  NEXT x%
+RETURN
+> PROCEDURE hamta
+  FILESELECT #"H„mta Sample","a:\","",a$
+  IF a$=""
+    hamta
+  ENDIF
+  OPEN "I",#1,a$
+  l=LOF(#1)
+  CLOSE
+RETURN

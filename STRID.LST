@@ -1,0 +1,93 @@
+DEFTEXT 1,8,8,8,8
+initiera
+DO
+  CLS
+  steg%=steg%+1
+  poaeng
+  o%=RND*8
+  IF o%=0
+    potion
+  ENDIF
+  IF o%=1
+    nyfiende
+    strid
+  ENDIF
+  IF o%>1
+    TEXT 0,50,"OK!"
+    WHILE INKEY$=""
+    WEND
+  ENDIF
+  EXIT IF MOUSEK=3
+LOOP
+PROCEDURE initiera
+  skill%=5
+  kp%=RND*50+1
+  steg%=0
+  fkp%=1
+RETURN
+PROCEDURE nyfiende
+  CLS
+  TEXT 0,30,"MONSTER"
+  PAUSE 50
+  fkp%=RND*10*skill%+1
+RETURN
+PROCEDURE strid
+  DO
+    CLS
+    TEXT 0,20,"KP="+STR$(kp%)+" SKILL="+STR$(skill%)+" FIENDENS KP="+STR$(fkp%)
+    INPUT "SLèSS ELLER FLY";a$
+    IF a$="f" OR a$="F"
+      kp%=kp%-4
+    ENDIF
+    EXIT IF a$="f" OR a$="F"
+    IF a$="s" OR a$="S"
+      vem%=RND*(8+skill%)
+      skada%=RND*5+1
+      IF vem%<=skill%
+        fkp%=fkp%-skada%-skill%/2
+      ENDIF
+      IF vem%>skill%
+        kp%=kp%-skada%
+      ENDIF
+    ENDIF
+    doed
+  LOOP
+RETURN
+PROCEDURE doed
+  IF kp%<=0
+    CLS
+    TEXT 100,100,"DU éR DôD!"
+    poaeng
+    PAUSE 100
+    CLS
+    INPUT "IGEN";a$
+    IF a$="J" OR a$="j"
+      RUN
+    ELSE
+      END
+    ENDIF
+  ENDIF
+  IF fkp%<=0
+    skill%=skill%+1
+    nyfiende
+  ENDIF
+RETURN
+PROCEDURE potion
+  INPUT "POTION! TA ELLER INTE";a$
+  IF RIGHT$(a$)="j" OR RIGHT$(a$)="J"
+    i%=RND
+    IF i%=0
+      TEXT 0,50,"NEJ! DU FôRLORAR 5 KP"
+      kp%=kp%-5
+    ELSE
+      TEXT 0,50,"JA! DU èTERFèR 5 KP"
+      kp%=kp%+5
+    ENDIF
+    PAUSE 50
+  ENDIF
+  doed
+RETURN
+PROCEDURE poaeng
+  p%=steg%*skill%
+  TEXT 0,30,"POéNG: "+STR$(p%)+" KP: "+STR$(kp%)
+RETURN

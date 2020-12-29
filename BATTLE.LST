@@ -1,0 +1,128 @@
+DIM fakta$(15,15,2)
+DIM skepp$(2)
+DIM skepp%(2,2)
+DIM flyg$(1)
+DIM flyg%(1,2)
+FOR ske%=0 TO 2
+  READ sk$
+  skepp$(ske%)=sk$
+  FOR skep%=0 TO 2
+    READ sk%
+    skepp%(ske%,skep%)=sk%
+  NEXT skep%
+NEXT ske%
+DATA "SLAGSKEPP",24,4,4,"TRANSPORT",8,0,1,"JAGARE",15,4,2
+FOR fl%=0 TO 1
+  READ fl$
+  flyg$(fl%)=fl$
+  FOR fly%=0 TO 2
+    READ f%
+    flyg%(fl%,fly%)=f%
+  NEXT fly%
+NEXT fl%
+DATA "FLYGPLAN",12,3,4,"BOMBARE",15,4,1
+DEFFILL 3
+FOR x%=20 TO 340 STEP 20
+  DRAW x%,10 TO x%,170
+  DRAW 20,x%/2 TO 340,x%/2
+NEXT x%
+FOR y%=0 TO 15
+  TEXT 0,10*y%+18,STR$(y%)
+NEXT y%
+TEXT 28,8,"A"
+TEXT 48,8,"B"
+TEXT 68,8,"C"
+TEXT 88,8,"D"
+TEXT 108,8,"E"
+TEXT 128,8,"F"
+TEXT 148,8,"G"
+TEXT 168,8,"H"
+TEXT 188,8,"I"
+TEXT 208,8,"J"
+TEXT 228,8,"K"
+TEXT 248,8,"L"
+TEXT 268,8,"M"
+TEXT 288,8,"N"
+TEXT 308,8,"O"
+TEXT 328,8,"P"
+FOR y%=0 TO 15
+  FOR x%=0 TO 15
+    c%=INT(RND*40)
+    IF c%=0
+      fakta$(x%,y%,0)="S"
+    ENDIF
+    IF c%=1
+      fakta$(x%,y%,0)="T"
+    ENDIF
+    IF c%=2
+      fakta$(x%,y%,0)="J"
+    ENDIF
+    IF c%=3
+      fakta$(x%,y%,0)="F"
+    ENDIF
+    IF c%=4
+      fakta$(x%,y%,0)="B"
+    ENDIF
+    IF c%>4
+      fakta$(x%,y%,0)=" "
+    ENDIF
+    TEXT x%*20+28,y%*10+18,fakta$(x%,y%,0)
+  NEXT x%
+NEXT y%
+DO
+  typ%=0
+  IF a%<>MOUSEX OR b%<>MOUSEY
+    x%=INT(MOUSEX/20)-1
+    y%=INT(MOUSEY/10)-1
+    IF x%>15
+      x%=15
+    ENDIF
+    IF y%>15
+      y%=15
+    ENDIF
+    IF x%<0
+      x%=0
+    ENDIF
+    IF y%<0
+      y%=0
+    ENDIF
+    IF fakta$(x%,y%,0)="S"
+      t%=0
+      typ%=0
+    ENDIF
+    IF fakta$(x%,y%,0)="T"
+      t%=1
+      typ%=0
+    ENDIF
+    IF fakta$(x%,y%,0)="J"
+      t%=2
+      typ%=0
+    ENDIF
+    IF fakta$(x%,y%,0)="F"
+      t%=0
+      typ%=1
+    ENDIF
+    IF fakta$(x%,y%,0)="B"
+      t%=1
+      typ%=1
+    ENDIF
+    IF fakta$(x%,y%,0)=" "
+      typ%=3
+    ENDIF
+    DEFFILL 0
+    PBOX 490,40,6400,80
+    IF typ%=0 AND MOUSEX<340 AND MOUSEY<170
+      TEXT 500,50,skepp$(t%)
+      TEXT 500,60,skepp%(t%,1)
+      TEXT 500,70,skepp%(t%,2)
+    ENDIF
+    IF typ%=1 AND MOUSEX<340 AND MOUSEY<170
+      TEXT 500,50,flyg$(t%)
+      TEXT 500,60,flyg%(t%,1)
+      TEXT 500,70,flyg%(t%,2)
+    ENDIF
+    DEFFILL 1
+  ENDIF
+  a%=MOUSEX
+  b%=MOUSEY
+LOOP

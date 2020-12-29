@@ -1,0 +1,29 @@
+INPUT "HUR MNGA RADER";e%
+CLS
+PRINT AT(1,1);"LOTTORADER:"
+DIM numsort%(7)
+DIM num%(7)
+FOR r%=1 TO e%
+  FOR x%=1 TO 7
+    nummer%=RND*35+1
+    FOR y%=1 TO x%
+      IF nummer%=num%(y%)
+        nummer%=RND*35+1
+      ENDIF
+    NEXT y%
+    num%(x%)=nummer%
+  NEXT x%
+  FOR w%=1 TO 10
+    FOR q%=1 TO 6
+      IF num%(q%)>num%(q%+1)
+        slask%=num%(q%)
+        num%(q%)=num%(q%+1)
+        num%(q%+1)=slask%
+      ENDIF
+    NEXT q%
+  NEXT w%
+  FOR i%=1 TO 7
+    PRINT num%(i%);" ";
+  NEXT i%
+  PRINT
+NEXT r%

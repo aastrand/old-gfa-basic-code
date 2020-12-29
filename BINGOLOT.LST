@@ -1,0 +1,61 @@
+DIM b%(15)
+DIM i%(15)
+DIM n%(15)
+DIM g%(15)
+DIM o%(15)
+FOR times%=1 TO 10000
+  d%=0
+  FOR x%=1 TO 15
+    b%(x%)=0
+    i%(x%)=0
+    n%(x%)=0
+    g%(x%)=0
+    o%(x%)=0
+  NEXT x%
+  DO
+    nr%=RND*75+1
+    IF nr%<=15
+      IF b%(nr%)<>1
+        d%=d%+1
+      ENDIF
+      b%(nr%)=1
+    ENDIF
+    IF nr%>15 AND nr%<=30
+      IF i%(nr%-15)<>1
+        d%=d%+1
+      ENDIF
+      i%(nr%-15)=1
+    ENDIF
+    IF nr%>30 AND nr%<=45
+      IF n%(nr%-30)<>1
+        d%=d%+1
+      ENDIF
+      n%(nr%-30)=1
+    ENDIF
+    IF nr%>45 AND nr%<=60
+      IF g%(nr%-45)<>1
+        d%=d%+1
+      ENDIF
+      g%(nr%-45)=1
+    ENDIF
+    IF nr%>60
+      IF o%(nr%-60)<>1
+        d%=d%+1
+      ENDIF
+      o%(nr%-60)=1
+    ENDIF
+    EXIT IF d%=19
+  LOOP
+  FOR a%=1 TO 15
+    '    PRINT b%(a%);i%(a%);n%(a%);g%(a%);o%(a%)
+    IF b%(a%)=1 AND i%(a%)=1 AND n%(a%)=1 AND g%(a%)=1 AND o%(a%)=1
+      bingo%=bingo%+1
+      PRINT "BINGO!"
+    ENDIF
+  NEXT a%
+  ' DO
+  ' EXIT IF MOUSEK
+  ' LOOP
+  '  CLS
+NEXT times%
+PRINT bingo%

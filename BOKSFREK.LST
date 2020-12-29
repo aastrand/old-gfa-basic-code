@@ -1,0 +1,74 @@
+HIDEM
+DIM n$(1000)
+FILESELECT #"VŽLJ TEXT","a:\","",namn$
+IF namn$=""
+  RUN
+ENDIF
+OPEN "I",#1,namn$
+RECALL #1,n$(),-1,x
+CLOSE
+FOR c%=0 TO 1000
+  a$=a$+n$(c%)
+NEXT c%
+INPUT "SE TEXTEN?",s$
+IF s$="J" OR s$="j"
+  PRINT a$
+  DO
+    EXIT IF INKEY$=" "
+  LOOP
+ENDIF
+CLS
+b$="ABCDEFGHIJKLMNOPQRSTUVWXYZŽ™"
+DIM t%(255)
+g%=0
+h%=20
+FOR d%=1 TO LEN(b$)
+  TEXT g%,h%,MID$(b$,d%,1)
+  g%=g%+40
+  IF g%>=600
+    g%=0
+    h%=h%+100
+  ENDIF
+NEXT d%
+FOR x%=1 TO LEN(a$)
+  q%=ASC(MID$(a$,x%,1))
+  IF q%>96 AND q%<123
+    q%=q%-32
+  ELSE IF q%=132
+    q%=142
+  ELSE IF q%=134
+    q%=143
+  ELSE IF q%=148
+    q%=153
+  ENDIF
+  t%(q%)=t%(q%)+1
+  skriv
+  EXIT IF INKEY$=" "
+NEXT x%
+PRINT "KLART!"
+DO
+  EXIT IF INKEY$=" "
+LOOP
+CLS
+INPUT "IGEN?",d$
+IF d$="j" OR d$="J"
+  RUN
+ENDIF
+EDIT
+> PROCEDURE skriv
+  g%=0
+  h%=50
+  FOR v%=65 TO 90
+    TEXT g%,h%,t%(v%)
+    g%=g%+40
+    IF g%>=600
+      h%=h%+100
+      g%=0
+    ENDIF
+  NEXT v%
+  TEXT g%,h%,t%(143)
+  g%=g%+40
+  TEXT g%,h%,t%(142)
+  g%=g%+40
+  TEXT g%,h%,t%(153)
+RETURN

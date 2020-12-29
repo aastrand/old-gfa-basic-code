@@ -1,0 +1,60 @@
+skapa_font:
+DIM font$(65)
+VSETCOLOR 0,0,0,0
+VSETCOLOR 1,15,15,15
+FOR a%=0 TO 1
+  alfa$="ABCDEFGHIJKLMNOPQRSTUVXYZèéô!,. "
+  DEFTEXT a%
+  TEXT 0,16,MID$(alfa$,0,16)
+  TEXT 0,32,MID$(alfa$,17,32)
+  FOR x%=0 TO 16
+    GET x%*16,0,(x%+1)*16,16,font$(x%+33*a%)
+  NEXT x%
+  FOR x%=0 TO 15
+    GET x%*16,17,(x%+1)*16,32,font$(x%+17+33*a%)
+  NEXT x%
+NEXT a%
+CLS
+skarm:
+BLOAD "a:\side2\ntrdemo\ntr.pi1",XBIOS(2)-34
+VOID XBIOS(6,L:XBIOS(2)-32)
+pattern:
+DIM plats%(314)
+FOR y%=0 TO 314
+  plats%(y%)=50*SIN(y%*5/100)
+NEXT y%
+text:
+DIM ordning(50)
+FOR s%=0 TO 50
+  READ d
+  ordning(s%)=d
+NEXT s%
+DATA 32,32,32,32,32,32,32,32,32,32
+DATA 7,4,9,32,0,11,11,4,19,0,12,12,0,13,19,29
+DATA 32,9,0,6,32,7,4,20,4,18,32,15,27,18,29
+DATA 32,32,32,32,32,32,32,32,32,32
+skriva:
+VSETCOLOR 0,0,0,0
+VSETCOLOR 1,15,15,15
+HIDEM
+REPEAT
+  FOR w%=0 TO 40
+    FOR q%=16 TO 0 STEP -4
+      VSYNC
+      FOR e%=0 TO 10
+        t%=q%+e%*16
+        g%=plats%(q%+e%*16)+50
+        h%=ordning(w%+e%)
+        GET t%,g%,t%+16,g%+16,bkg$
+        PUT t%,g%,font$(h%+33),4
+        VSYNC
+        PUT t%,g%,font$(h%),6
+        EXIT IF MOUSEK=1
+        PUT t%,plats%(q%+e%*16)+50,bkg$
+      NEXT e%
+      EXIT IF MOUSEK=1
+    NEXT q%
+    EXIT IF MOUSEK=1
+  NEXT w%
+UNTIL MOUSEK=1
+SHOWM

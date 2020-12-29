@@ -1,0 +1,19 @@
+b=1
+a=1
+c=1
+x=0
+e=3
+y=0
+DO
+  g=s
+  d=e
+  a=a+1
+  c=c*-1
+  b=b+c/a^4
+  e=(720*b/7)^(1/4)
+  s=ABS(d-e)
+  IF g-s<10^-x
+    LPRINT MID$(STR$(e),x,1);
+    x=x+1
+  ENDIF
+LOOP

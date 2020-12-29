@@ -1,0 +1,26 @@
+INPUT a
+a:
+IF (a/2)-INT(a/2)=0
+  GOTO c
+ENDIF
+b=3
+b:
+c=SQR(a)+1
+IF b>=c
+  GOTO d
+ENDIF
+IF (a/b)-INT(a/b)=0
+  GOTO c
+ENDIF
+b=b+2
+GOTO b
+c:
+a=a+1
+GOTO a
+d:
+PRINT a;" ";
+a=a+1
+IF MOUSEK=1
+  END
+ENDIF
+GOTO a

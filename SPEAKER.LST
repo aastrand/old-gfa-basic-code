@@ -1,0 +1,210 @@
+main
+PROCEDURE main
+  PRINT "                        LOUDSPEAKER DESIGN PROGRAM"
+  PRINT
+  DIM m(500)
+  x=9
+  y=3
+  par
+  DO
+    CLS
+    PRINT "                        LOUDSPEAKER DESIGN PROGRAM"
+    PRINT
+    PRINT "CURRENT PARAMETERS: Qts=";qts;", Vas=";vas;" l, Fs=";fs;" Hz"
+    PRINT
+    PRINT "1. NEW PARAMETERS"
+    PRINT "2. VENTED BOX"
+    PRINT "3. CLOSED BOX"
+    PRINT "4. GRAPH"
+    PRINT "5. GRAPH PRINTOUT"
+    PRINT "6. VENT LENGTH"
+    PRINT
+    INPUT a
+    IF a=1
+      CLS
+      par
+    ELSE IF a=2
+      CLS
+      vb
+    ELSE IF a=3
+      CLS
+      cb
+    ELSE IF a=4
+      CLS
+      graph
+    ELSE IF a=5
+      out
+    ELSE IF a=6
+      CLS
+      length
+    ENDIF
+  LOOP
+RETURN
+PROCEDURE vb
+  j=0
+  g=0
+  vb=vas*15*qts^2.87
+  fb=0.42*fs*qts^(-0.9)
+  f3=fs*SQR(vas/vb)
+  h=0
+  g
+  INPUT "Change Vb";a$
+  IF a$="y" OR a$="Y"
+    INPUT "Enter new Vb";vb
+    CLS
+    fb=fs*(vas/vb)^0.32
+    f3=fs*SQR(vas/vb)
+    h=20*LOG(2.6*qts*(vas/vb)^0.35)/LOG(10)
+    g
+  ENDIF
+  INPUT "Change Fb";a$
+  IF a$="y" OR a$="Y"
+    j=1
+    INPUT "Enter nev Fb";fb
+  ENDIF
+  a=(fb^2)/(fs^2)
+  b=a/qts+(fb/(7*fs))
+  c=1+a+(fb/(7*fs*qts))+(vas/vb)
+  d=1/qts+(fb/(7*fs))
+  FOR f=20 TO 500
+    f9=f/fs
+    f5=f9*f9
+    f4=f9*f9*f9*f9
+    fh=f9*f9*f9
+    f6=(f4-c*f5+a)^2
+    f7=(b*f9-d*fh)^2
+    m(f)=20*LOG(f4/(f6+f7)^0.5)/LOG(10)
+    IF j=1
+      IF ABS(m(f)+3)<0.2
+        f3=f
+      ENDIF
+    ENDIF
+  NEXT f
+  DO
+    EXIT IF INKEY$<>""
+  LOOP
+RETURN
+> PROCEDURE g
+  PRINT "Vb=";vb
+  PRINT "Fb=";fb
+  PRINT "F3=";f3
+  PRINT "Peak=";h
+RETURN
+> PROCEDURE par
+  INPUT "Enter Qts";qts
+  INPUT "Enter Vas";vas
+  INPUT "Enter Fs";fs
+RETURN
+> PROCEDURE cb
+  g=1
+  INPUT "Enter Vb";vb
+  al=vas/vb
+  fb=fs*SQR(al+1)
+  qtc=(fb*qts)/fs
+  f3=fb*SQR(((1/qtc^2-2)+SQR((1/qtc^2-2)^2+4))/2)
+  PRINT "Fb=";fb
+  PRINT "F3=";f3
+  PRINT "Qtc=";qtc
+  PRINT "Vb=";vb
+  FOR f=20 TO 500
+    fh=f/fb
+    fq=fh*fh
+    mag=fq/(SQR((fq-1)^2+(fh/qtc)^2))
+    m(f)=20*LOG(mag)/LOG(10)
+  NEXT f
+  DO
+    EXIT IF INKEY$<>""
+  LOOP
+RETURN
+> PROCEDURE graph
+  CLS
+  PRINT "                                RESPONSE GRAPH"
+  RESTORE
+  FOR i=1 TO 3
+    PRINT
+  NEXT i
+  PRINT "0 dB"
+  PRINT
+  PRINT
+  PRINT "5 dB"
+  PRINT "PER"
+  PRINT "DIV"
+  FOR i=1 TO 5
+    PRINT
+  NEXT i
+  PRINT TAB(5);"20";TAB(35);"Hz";TAB(60);"200"
+  FOR i=44 TO 640
+    PLOT i,y*38
+  NEXT i
+  FOR i=9 TO 114
+    PLOT 42,i
+  NEXT i
+  FOR i=3 TO 38
+    PLOT 43,y*i
+  NEXT i
+  FOR i=3 TO 33 STEP 5
+    PLOT 44,y*i
+    PLOT 45,y*i
+  NEXT i
+  FOR i=1 TO 9
+    READ j
+    FOR d=37.5 TO 38 STEP 0.1
+      PLOT x*((LOG(j/20)*18.3851)+12),y*d
+    NEXT d
+  NEXT i
+  FOR f=20 TO 500
+    IF m(f)>-25
+      PLOT x*((LOG(f/20)*18.3851)+12),y*((38-m(f))-25)
+    ENDIF
+  NEXT f
+  DATA 30,40,50,60,70,80,90,100,200
+  PRINT
+  PRINT "Qts=";qts
+  PRINT "Fs=";fs;" Hz"
+  PRINT "Vas=";vas;" l"
+  PRINT "F3=";f3;" Hz"
+  PRINT "Fb=";fb;" Hz"
+  PRINT "Vb=";vb;" l"
+  IF g=1
+    PRINT "Qtc=";qtc
+  ENDIF
+  DO
+    EXIT IF INKEY$<>""
+  LOOP
+  CLS
+RETURN
+> PROCEDURE out
+  DATA 20,21,22,24,25,27,28,30,32,33,35,38,40,42,45,47,50,53,56,60,63,67,71,75,79,84,89,94,100,106,112,119,126,133,141,150,158,168,178,188,200,211,224,237,251,266,282,299,316,335
+  LPRINT TAB(9);"-40";TAB(19);"-30";TAB(29);"-20";TAB(39);"-10";TAB(50);"0";TAB(59);"10"
+  LPRINT "----------+---------+---------+---------+---------+---------+-->"
+  FOR i=1 TO 50
+    READ f
+    LPRINT f;
+    IF m(t)>=(-39)
+      LPRINT TAB(50+m(f));"*"
+    ELSE IF m(f)<(-39)
+      LPRINT ""
+    ENDIF
+  NEXT i
+  LPRINT
+  LPRINT "PARAMETERS:"
+  LPRINT "Qts=";qts
+  LPRINT "Fs=";fs;" Hz"
+  LPRINT "Vas=";vas;" l"
+  LPRINT "F3=";f3;" Hz"
+  LPRINT "Fb=";fb;" Hz"
+  LPRINT "Vb=";vb;" l"
+  IF g=1
+    LPRINT "Qtc=";qtc
+  ENDIF
+RETURN
+> PROCEDURE length
+  INPUT "Vent radius (cm)";r
+  lv=((r^2)*(9.425*10^4))/((fb^2)*vb)-1.595*r
+  CLS
+  PRINT "Vent radius=";r;" cm"
+  PRINT "Vent length=";lv;" cm"
+  DO
+    EXIT IF INKEY$<>""
+  LOOP
+RETURN

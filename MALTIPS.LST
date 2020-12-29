@@ -1,0 +1,30 @@
+INPUT "HUR MNGA RADER";e%
+CLS
+PRINT AT(1,1);"MLTIPSRADER:"
+DIM numsort%(8)
+DIM num%(8)
+FOR r%=1 TO e%
+  FOR x%=1 TO 8
+    RANDOMIZE TIMER
+    nummer%=RND*30+1
+    FOR y%=1 TO x%
+      IF nummer%=num%(y%)
+        nummer%=RND*30+1
+      ENDIF
+    NEXT y%
+    num%(x%)=nummer%
+  NEXT x%
+  FOR w%=1 TO 10
+    FOR q%=1 TO 7
+      IF num%(q%)>num%(q%+1)
+        slask%=num%(q%)
+        num%(q%)=num%(q%+1)
+        num%(q%+1)=slask%
+      ENDIF
+    NEXT q%
+  NEXT w%
+  FOR i%=1 TO 8
+    PRINT num%(i%);" ";
+  NEXT i%
+  PRINT
+NEXT r%
